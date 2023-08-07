@@ -30,6 +30,11 @@ const Customizer = () => {
     stylishShirt: false,
   });
 
+  const handleClickEditorTab = (tabName) => {
+    // If the clicked tab is already active, collapse it
+    setActiveEditorTab((prevTab) => (prevTab === tabName ? "" : tabName));
+  };
+
   //show tab content depending on the activeTab
   const generateTabContent = () => {
     switch (activeEditorTab) {
@@ -57,15 +62,18 @@ const Customizer = () => {
     try {
       setGeneratingImg(true);
 
-      const response = await fetch("http://localhost:8080/api/v1/dalle", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          prompt: prompt, // Make sure the prompt is correctly included in the request body
-        }),
-      });
+      const response = await fetch(
+        "https://three-ai-project.onrender.com/api/v1/dalle",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt: prompt,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch data from the server"); // Handle non-200 response
@@ -79,8 +87,8 @@ const Customizer = () => {
 
       handleDecals(type, `data:image/png;base64,${data.photo}`);
     } catch (error) {
-      alert("An error occurred while processing the image"); // Display a more user-friendly error message
-      console.error(error); // Log the error for debugging purposes
+      alert("An error occurred while processing the image");
+      console.error(error);
     } finally {
       setGeneratingImg(false);
       setActiveEditorTab("");
@@ -144,7 +152,8 @@ const Customizer = () => {
                   <Tab
                     key={tab.name}
                     tab={tab}
-                    handleClick={() => setActiveEditorTab(tab.name)}
+                    isActive={activeEditorTab === tab.name}
+                    handleClick={() => handleClickEditorTab(tab.name)}
                   />
                 ))}
 
@@ -177,6 +186,13 @@ const Customizer = () => {
                 handleClick={() => handleActiveFilterTab(tab.name)}
               />
             ))}
+            <button className="download-btn" onClick={downloadCanvasToImage}>
+              <img
+                src={download}
+                alt="download_image"
+                className="w-3/5 h-3/5 object-contain"
+              />
+            </button>
           </motion.div>
         </>
       )}
